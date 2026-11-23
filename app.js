@@ -59,7 +59,16 @@
       const cw = canvas.width, ch = canvas.height;
       const escala = Math.max(cw / img.naturalWidth, ch / img.naturalHeight); // "cover"
       const w = img.naturalWidth * escala, h = img.naturalHeight * escala;
-      ctx.drawImage(img, (cw - w) / 2, (ch - h) / 2, w, h);
+      let x = (cw - w) / 2;
+      if (cw < ch) {
+        // Tela em pé: o quadro 16:9 não cabe inteiro. O enquadramento desliza do centro
+        // até a cristaleira (móvel pronto, ~73% da largura) conforme o filme avança.
+        const p = j / (total - 1);
+        const suave = p * p * (3 - 2 * p);
+        const foco = 0.5 + (0.73 - 0.5) * suave;
+        x = Math.min(0, Math.max(cw - w, cw / 2 - foco * w));
+      }
+      ctx.drawImage(img, x, (ch - h) / 2, w, h);
       desenhado = j;
     }
 
